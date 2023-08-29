@@ -27,7 +27,7 @@ export class UsersService {
       if (users.length === 0) {
         throw new ErrorManager({
           type: 'BAD_REQUEST',
-          message: 'No se encontraron resultados',
+          message: 'No se encontraron resultados en Users',
         });
       }
       return users;
@@ -46,7 +46,7 @@ export class UsersService {
       if (!user) {
         throw new ErrorManager({
           type: 'BAD_REQUEST',
-          message: 'No se encontro resultado con el ID proporcionado',
+          message: 'No se encontro resultados en Users con el ID proporcionado',
         });
       }
       return user;
@@ -65,7 +65,7 @@ export class UsersService {
       if (user.affected === 0) {
         throw new ErrorManager({
           type: 'BAD_REQUEST',
-          message: 'No se pudo actualizar con el ID proporcionado',
+          message: 'No se pudo actualizar User con el ID proporcionado',
         });
       }
       return user;
@@ -81,7 +81,7 @@ export class UsersService {
       if (user.affected === 0) {
         throw new ErrorManager({
           type: 'BAD_REQUEST',
-          message: 'No se pudo eliminar',
+          message: 'No se pudo eliminar User',
         });
       }
       return user;

@@ -14,7 +14,7 @@ import { UserDTO, UserUpdateDTO } from '../dto/user.dto';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post('register')
+  @Post('create')
   public async registerUser(@Body() body: UserDTO) {
     return await this.usersService.createUser(body);
   }
