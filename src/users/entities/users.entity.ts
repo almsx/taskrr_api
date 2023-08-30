@@ -1,4 +1,5 @@
 import { Column, Entity, OneToMany } from 'typeorm';
+import { Exclude } from 'class-transformer';
 import { ROLES } from '../../constants/roles';
 import { BaseEntity } from '../../config/base.entity';
 import { IUser } from '../../interfaces/user.interface';
@@ -21,6 +22,7 @@ export class UsersEntity extends BaseEntity implements IUser {
   @Column({ unique: true })
   username: string;
 
+  @Exclude()
   @Column()
   password: string;
 
