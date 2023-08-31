@@ -70,6 +70,19 @@ export class UsersService {
     }
   }
 
+  public async findBy({ key, value }: { key: keyof UserDTO; value: any }) {
+    try {
+      const user: UsersEntity = await this.userRepository
+        .createQueryBuilder('user')
+        .addSelect('user.password')
+        .where({ [key]: value })
+        .getOne();
+      return user;
+    } catch (error) {
+      throw ErrorManager.createSignatureError(error.message);
+    }
+  }
+
   public async updateUser(
     body: UserUpdateDTO,
     id: string,
