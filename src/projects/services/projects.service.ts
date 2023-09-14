@@ -1,21 +1,32 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ErrorManager } from 'src/utils/error.manager';
 import { DeleteResult, Repository, UpdateResult } from 'typeorm';
-
-import { ProjectsEntity } from '../entities/projects.entity';
+import { ACCESS_LEVEL } from 'src/constants/roles';
+import { ErrorManager } from 'src/utils/error.manager';
+import { UsersService } from 'src/users/services/users.service';
 import { ProjectDTO, ProjectUpdateDTO } from '../dto/project.dto';
+import { ProjectsEntity } from '../entities/projects.entity';
+import { UsersProjectsEntity } from 'src/users/entities/usersProjects.entity';
 
 @Injectable()
 export class ProjectsService {
   constructor(
     @InjectRepository(ProjectsEntity)
-    private readonly projectReposity: Repository<ProjectsEntity>,
+    private readonly projectRepository: Repository<ProjectsEntity>,
+    @InjectRepository(UsersProjectsEntity)
+    private readonly userProjectRepository: Repository<UsersProjectsEntity>,
+    private readonly usersService: UsersService,
   ) {}
 
-  public async createProject(body: ProjectDTO): Promise<ProjectsEntity> {
+  public async createProject(body: ProjectDTO, userId: string): Promise<any> {
     try {
-      return await this.projectReposity.save(body);
+      const user = await this.usersService.findUserById(userId);
+      const project = await this.projectRepository.save(body);
+      return await this.userProjectRepository.save({
+        accessLevel: ACCESS_LEVEL.OWNER,
+        user: user,
+        project,
+      });
     } catch (error) {
       throw ErrorManager.createSignatureError(error.message);
     }
@@ -23,12 +34,11 @@ export class ProjectsService {
 
   public async findProjects(): Promise<ProjectsEntity[]> {
     try {
-      const projects: ProjectsEntity[] = await this.projectReposity.find();
-
+      const projects: ProjectsEntity[] = await this.projectRepository.find();
       if (projects.length === 0) {
         throw new ErrorManager({
           type: 'BAD_REQUEST',
-          message: 'No se encontraron resultados en proyectos',
+          message: 'No se encontro resultado',
         });
       }
       return projects;
@@ -39,18 +49,18 @@ export class ProjectsService {
 
   public async findProjectById(id: string): Promise<ProjectsEntity> {
     try {
-      const project: ProjectsEntity = await this.projectReposity
+      const project = await this.projectRepository
         .createQueryBuilder('project')
         .where({ id })
         .leftJoinAndSelect('project.usersIncludes', 'usersIncludes')
         .leftJoinAndSelect('usersIncludes.user', 'user')
         .getOne();
-
       if (!project) {
         throw new ErrorManager({
           type: 'BAD_REQUEST',
           message:
-            'No se encontro resultados en proyectos con el ID proporcionado',
+            'No se encontro resultados en proyectos con el ID proporcionado ' +
+            id,
         });
       }
       return project;
@@ -64,8 +74,10 @@ export class ProjectsService {
     id: string,
   ): Promise<UpdateResult | undefined> {
     try {
-      const project: UpdateResult = await this.projectReposity.update(id, body);
-
+      const project: UpdateResult = await this.projectRepository.update(
+        id,
+        body,
+      );
       if (project.affected === 0) {
         throw new ErrorManager({
           type: 'BAD_REQUEST',
@@ -80,8 +92,7 @@ export class ProjectsService {
 
   public async deleteProject(id: string): Promise<DeleteResult | undefined> {
     try {
-      const project: DeleteResult = await this.projectReposity.delete(id);
-
+      const project: DeleteResult = await this.projectRepository.delete(id);
       if (project.affected === 0) {
         throw new ErrorManager({
           type: 'BAD_REQUEST',
