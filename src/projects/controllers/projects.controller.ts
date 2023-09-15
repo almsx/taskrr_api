@@ -41,7 +41,7 @@ export class ProjectsController {
     return await this.projectsService.findProjectById(id);
   }
 
-  @AccessLevel(50)
+  @AccessLevel('OWNER')
   @Put('update/:projectId')
   public async updateUser(
     @Param('projectId', new ParseUUIDPipe()) id: string,
