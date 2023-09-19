@@ -18,7 +18,9 @@ import { AccessLevelGuard } from 'src/auth/guards/access-level.guard';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { ProjectsEntity } from 'src/projects/entities/projects.entity';
+import { ApiHeader, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Users')
 @Controller('users')
 @UseGuards(AuthGuard, RolesGuard, AccessLevelGuard)
 export class UsersController {
@@ -30,18 +32,37 @@ export class UsersController {
     return await this.usersService.createUser(body);
   }
 
+  @ApiHeader({
+    name: 'taskrr_token',
+  })
   @AdminAccess()
   @Get('all')
   public async findAllUsers() {
     return await this.usersService.findUsers();
   }
 
+  @ApiHeader({
+    name: 'taskrr_token',
+  })
+  @ApiParam({
+    name: 'id',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'No se encontro resultados en Users con el ID proporcionado',
+  })
   @Get(':id')
   public async findUserById(@Param('id', new ParseUUIDPipe()) id: string) {
     return await this.usersService.findUserById(id);
   }
 
   /* Create Relation with projects */
+  @ApiHeader({
+    name: 'taskrr_token',
+  })
+  @ApiParam({
+    name: 'projectId',
+  })
   @AccessLevel('OWNER')
   @Post('add-to-project/:projectId')
   public async addToProject(
@@ -54,6 +75,12 @@ export class UsersController {
     });
   }
 
+  @ApiHeader({
+    name: 'taskrr_token',
+  })
+  @ApiParam({
+    name: 'id',
+  })
   @Put('update/:id')
   public async updateUser(
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -62,6 +89,12 @@ export class UsersController {
     return await this.usersService.updateUser(body, id);
   }
 
+  @ApiHeader({
+    name: 'taskrr_token',
+  })
+  @ApiParam({
+    name: 'id',
+  })
   @Delete('delete/:id')
   public async deleteUser(@Param('id', new ParseUUIDPipe()) id: string) {
     return await this.usersService.deleteUser(id);
