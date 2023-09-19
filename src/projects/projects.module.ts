@@ -5,10 +5,15 @@ import { ProjectsService } from './services/projects.service';
 import { ProjectsController } from './controllers/projects.controller';
 import { UsersProjectsEntity } from 'src/users/entities/usersProjects.entity';
 import { UsersService } from 'src/users/services/users.service';
+import { ProvidersModule } from 'src/providers/providers.module';
+import { HttpCustomService } from 'src/providers/http/http.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ProjectsEntity, UsersProjectsEntity])],
-  providers: [ProjectsService, UsersService],
+  imports: [
+    TypeOrmModule.forFeature([ProjectsEntity, UsersProjectsEntity]),
+    ProvidersModule,
+  ],
+  providers: [ProjectsService, UsersService, HttpCustomService],
   controllers: [ProjectsController],
 })
 export class ProjectsModule {}

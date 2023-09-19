@@ -7,6 +7,7 @@ import { UsersService } from 'src/users/services/users.service';
 import { ProjectDTO, ProjectUpdateDTO } from '../dto/project.dto';
 import { ProjectsEntity } from '../entities/projects.entity';
 import { UsersProjectsEntity } from 'src/users/entities/usersProjects.entity';
+import { HttpCustomService } from 'src/providers/http/http.service';
 
 @Injectable()
 export class ProjectsService {
@@ -16,6 +17,7 @@ export class ProjectsService {
     @InjectRepository(UsersProjectsEntity)
     private readonly userProjectRepository: Repository<UsersProjectsEntity>,
     private readonly usersService: UsersService,
+    private readonly httpService: HttpCustomService,
   ) {}
 
   public async createProject(body: ProjectDTO, userId: string): Promise<any> {
@@ -30,6 +32,10 @@ export class ProjectsService {
     } catch (error) {
       throw ErrorManager.createSignatureError(error.message);
     }
+  }
+
+  public async listApi() {
+    return this.httpService.apiFindAll();
   }
 
   public async findProjects(): Promise<ProjectsEntity[]> {
